@@ -12,6 +12,7 @@ int ifEnd(rdp_o *rdp);
 void cleanRDP(rdp_o *rdp);
 void logInvariantePlaza(int *vectorMarcado, int size);
 void free_aux_data_structures();
+int funcion_dummy(rdp_o *rdp);
 
 /**
  * @brief Estructura que contiene los metodos que tenga la estructura red de petri.
@@ -21,7 +22,8 @@ struct rdp_metodos rdpMetodos = {
 
     .isPos = isPos,
     .ifEnd = ifEnd,
-    .cleanRDP = cleanRDP};
+    .cleanRDP = cleanRDP,
+    .funcion_dummy = funcion_dummy};
 
 /**
  * @brief Inicializa las estructuras y variables que contiene la estructura que representa la red de petri,
@@ -251,4 +253,14 @@ int ifEnd(rdp_o *rdp) // determina si ya volvi al marcado inicial y se generaron
         return 1;
     }
     return 0;
+}
+
+int funcion_dummy(rdp_o *rdp){
+    printf("holi\n");
+    if(rdp != NULL){
+        return 0;
+    }
+    else{
+        return 1;
+    }
 }

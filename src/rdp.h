@@ -15,7 +15,9 @@
 #define BUFFERS 2
 #define DEBUG 0
 #define ERROR -5
+
 typedef struct rdp rdp_o;
+
 
 /**
  * @brief Se declaran los metodos que tendra la estructura red de petri
@@ -27,6 +29,7 @@ struct rdp_metodos
     int (*isPos)(rdp_o *, int *index);
     int (*ifEnd)(rdp_o *);
     void (*cleanRDP)(rdp_o *);
+    int (*funcion_dummy)(rdp_o *);
 };
 
 /**
