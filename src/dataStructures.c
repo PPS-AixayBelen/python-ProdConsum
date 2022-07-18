@@ -7,9 +7,6 @@ void print(o_vector p_vector);
 int copy(o_vector dst, o_vector src);
 void cargar_vector(o_vector* vector, char *v);
 
-int alloc_matriz(o_matriz *p_matriz);
-void free_matriz(o_matriz *p_matriz);
-int cargar_matriz_string(o_matriz *p_matriz, char *matriz);
 
 struct vector_methods v_methods = {
     .alloc_vector = alloc_vector,
@@ -17,11 +14,6 @@ struct vector_methods v_methods = {
     .print = print,
     .copy = copy,
     .cargar_vector=cargar_vector};
-
-struct matriz_methods m_methods = {
-    .alloc_matriz = alloc_matriz,
-    .free_matriz = free_matriz,
-    .cargar_matriz_string = cargar_matriz_string};
 
 /**
  * @brief Aloca memoria para un vector cuyo tamaño esta especificado en la variable size de p_vector.
@@ -91,36 +83,6 @@ void cargar_vector(o_vector* vector, char *v)
     }
 }
 
-/**
- * @brief Aloca memoria para una matriz cuyo tamaño esta especificado en p_matriz
- * 
- * @param p_matriz Puntero donde se alocara la matriz, contiene el tamaño.
- * @return int -1 si hubo un fallo en la alocacion, 0 si la alocacion fue correcta.
- */
-int alloc_matriz(o_matriz *p_matriz)
-{
-    int **matriz = (int **)malloc(p_matriz->filas * sizeof(int *));
-    if (matriz == NULL)
-    {
-        return ALLOC_ERROR;
-    }
-
-    for (int i = 0; i < p_matriz->filas; i++)
-    {
-        matriz[i] = (int *)malloc(p_matriz->columnas * sizeof(int));
-        if (matriz[i] == NULL)
-        {
-            for (int j = 0; j < i; j++)
-            {
-                free(matriz[j]);
-            }
-            free(matriz);
-            return ALLOC_ERROR;
-        }
-    }
-    p_matriz->matriz = matriz;
-    return ALLOC_OK;
-}
 
 /**
  * @brief Copia los valores de la variable vector de la estructura src en la variable vector de dst
@@ -144,46 +106,7 @@ int copy(o_vector dst, o_vector src)
     return 0;
 }
 
-/**
- * @brief Carga desde un string matriz una matriz en la varible matriz de p_matriz
- * 
- * @param p_matriz Puntero a la estructura donde se debe cargar la matriz
- * @param matriz Cadena de caracteres con la matriz
- * @return 0 si la carga se realiza correctamente.
- */
-int cargar_matriz_string(o_matriz *p_matriz, char *matriz)
-{
-    char *token;
-    token = strtok(matriz," ");
-    p_matriz->matriz[0][0] = atoi(token);
-    int j = 1;
 
-    for (int i = 0; i < p_matriz->filas; i++)
-    {
-        for (j; j < p_matriz->columnas; j++)
-        {
-            token = strtok(NULL, " ");
-            p_matriz->matriz[i][j] = atoi(token);
-        }
-        j=0;
-    }
-
-    return READ_FILE_OK;
-}
-
-/**
- * @brief Libera la memoria alocada para la variable matriz de p_matriz
- * 
- * @param p_matriz Estructura que contiene el puntero a la memoria que debe ser liberada
- */
-void free_matriz(o_matriz *p_matriz)
-{
-    for (int j = 0; j < p_matriz->filas; j++)
-    {
-        free(p_matriz->matriz[j]);
-    }
-    free(p_matriz->matriz);
-}
 
 /**
  * @brief Inicializa los valores de la estructura p_v, alocando la memoria necesaria.
@@ -192,11 +115,12 @@ void free_matriz(o_matriz *p_matriz)
  * @param v_size Tamaño del vector 
  * @return int -1 si ocurre un error al alocar la memoria, 0 si se aloca correctamente
  */
-extern int new_vector(o_vector *p_v, int v_size)
+int new_vector(void *p_v, int v_size)
 {
-    p_v->size = v_size;
-    p_v->v_methods = &v_methods;
-    int p_v_alloc = p_v->v_methods->alloc_vector(p_v);
+    o_vector *vector_pointer = (o_vector *)p_v;
+    vector_pointer->size = v_size;
+    vector_pointer->v_methods = &v_methods;
+    int p_v_alloc = vector_pointer->v_methods->alloc_vector(p_v);
     if (p_v_alloc == ALLOC_ERROR)
     {
         return ALLOC_ERROR;
@@ -205,25 +129,3 @@ extern int new_vector(o_vector *p_v, int v_size)
     return ALLOC_OK;
 }
 
-/**
- * @brief Inicializa los valores en la estructura p_m, alocando la memoria necesaria para la matriz
- * 
- * @param p_m Estructura de tipo o_matriz.
- * @param filas 
- * @param columnas 
- * @return int -1 si ocurre un error al alocar la memoria, 0 si se aloca correctamente
- */
-extern int new_matriz(o_matriz *p_m, int filas, int columnas)
-{
-    p_m->columnas = columnas;
-    p_m->filas = filas;
-    p_m->metodos = &m_methods;
-
-    int p_m_alloc = p_m->metodos->alloc_matriz(p_m);
-    if (p_m_alloc == ALLOC_ERROR)
-    {
-        return ALLOC_ERROR;
-    }
-
-    return ALLOC_OK;
-}
